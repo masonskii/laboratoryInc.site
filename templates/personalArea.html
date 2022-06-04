@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static '/font-awesome/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href='{% static '/css/index_menu.css' %}?{% now "U" %}' type="text/css">
+    <link rel="stylesheet" href='{% static '/css/lk.css' %}?{% now "U" %}' type="text/css">
+    <link
+            rel="stylesheet"
+            href="https://unpkg.com/swiper@8/swiper-bundle.min.css"
+    />
+
+</head>
+<body>
+<div class="d-flex" id="wrapper">
+    <!-- Sidebar-->
+    <div class="border-end bg-white" id="sidebar-wrapper">
+        <div class="sidebar-heading border-bottom bg-light">Лаборатория Inc</div>
+        <div class="list-group list-group-flush">
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" href="{% url 'index' %}"><i
+                    class="fa fa-home" aria-hidden="true"></i>Главная</a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#"><i
+                    class="fa fa-newspaper-o" aria-hidden="true"></i>Новости</a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!"><i
+                    class="fa fa-calendar" aria-hidden="true"></i>Мероприятия</a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3"
+               href="{% url 'bank:transfer' %}"><i class="fa fa-university" aria-hidden="true"></i>Банк</a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" href="{% url 'market:sell' %}"><i
+                    class="fa fa-shopping-cart" aria-hidden="true"></i>Маркет</a>
+            <div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Page content wrapper-->
+    <div id="page-content-wrapper">
+        <!-- Top navigation-->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+            <div class="container-fluid">
+                <button class="btn btn-primary" id="sidebarToggle"><i class="fa fa-bars" aria-hidden="true"></i>Меню
+                </button>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                        <li class="nav-item active"><a class="nav-link" href="#!"><i class="fa fa-bell"
+                                                                                     aria-hidden="true"></i></a></li>
+                        <li class="nav-item"><a class="nav-link" href="#!"><i class="fa fa-comment"
+                                                                              aria-hidden="true"></i></a></li>
+                        {% if not user.is_authenticated %}
+                            <li class="nav-item"><a class="nav-link" href="{% url 'login:sign-in' %}"><i
+                                    class="fa fa-sign-in" aria-hidden="true"></i>Вход</a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="{% url 'login:presing' %}"><i
+                                    class="fa fa-user-plus" aria-hidden="true"></i>Регистрация</a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
+                                   data-bs-toggle="dropdown" aria-haspopup="true"
+                                   aria-expanded="false">{{ user.name }} {{ user.surname }}</a>
+                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="#!">{{ Profile }}</a>
+                                    {% if user.is_organizate %}
+                                        <a class="dropdown-item" href="{% url 'createdNews' %}">Создать новость</a>
+                                        <a class="dropdown-item" href="#!">Создать мероприятие</a>
+                                        <a class="dropdown-item" href="{% url 'createdTask' %}">Создать задачу</a>
+                                    {% else %}
+                                        <a class="dropdown-item" href="#!">Подать заявку на организатора</a>
+                                    {% endif %}
+                                    <a class="dropdown-item" href="{% url 'login:subsign' %}">О себе</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="{% url 'login:logout' %}">Выход</a>
+                                </div>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- Page content-->
+        <div class="container-fluid">
+            <div class="container cont">
+                <div class="container-md">
+                    <div class="container logo-container">
+                        <div class="container-sm">
+                            {% if person.logo %}
+                                <img class='avatar-user' src='{{ person.logo.url }}' alt="your logo">
+                                <button class="btn-dark btn-edit" id="btn-open-edit-box-1">Редактировать</button>
+                            {% else %}
+                                <img class='avatar-user' src='{% static 'default_img/noavatar.png' %}' alt="your logo">
+                                <button class="btn-dark btn-edit" id="btn-open-edit-box-1">Редактировать</button>
+                            {% endif %}
+                            <div class="container hidden-adding-info-block-1" id="">
+                                <h5>Заполните данные</h5>
+                                <form method="POST" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <input type="file" name="logo">
+                                    <button type="submit" class="btn" name="added_logo">Добавить</button>
+                                </form>
+                            </div>
+                        </div>
+                        {% if not person.name %}
+                            <div class="container-sm adding-info">
+                                <button class="btn-dark btn-edit" id="btn-open-edit-box-2">Добавить имя</button>
+                                <div class="container hidden-adding-info-block-2">
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <input type="text" name="name">
+                                        <button type="submit" class="btn" name="added_name">Добавить</button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if not person.surname %}
+                            <div class="container-sm adding-info">
+                                <button class="btn-dark btn-edit" id="btn-open-edit-box-3">Добавить фамилию</button>
+                                <div class="container hidden-adding-info-block-3">
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <input type="text" name="surname">
+                                        <button type="submit" class="btn" name="added_surname">Добавить</button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if not person.ndName %}
+                            <div class="container-sm adding-info">
+                                <button class="btn-dark btn-edit" id="btn-open-edit-box-4">Добавить отчество</button>
+                                <div class="container hidden-adding-info-block-4">
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <input type="text" name="ndName">
+                                        <button type="submit" class="btn" name="added_ndName">Добавить</button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if not person.phone %}
+                            <div class="container-sm adding-info">
+                                <button class="btn-dark btn-edit" id="btn-open-edit-box-5">Добавить телефон</button>
+                                <div class="container hidden-adding-info-block-5">
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <input type="text" name="phone">
+                                        <button type="submit" class="btn" name="added_phone">Добавить</button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if not person.birthday %}
+                            <div class="container-sm adding-info">
+                                <button class="btn-dark btn-edit" id="btn-open-edit-box-6">Добавить день рождения
+                                </button>
+                                <div class="container hidden-adding-info-block-6">
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <input type="text" name="birthday">
+                                        <button type="submit" class="btn" name="added_birthday">Добавить</button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if not person.country %}
+                            <div class="container-sm adding-info">
+                                <button class="btn-dark btn-edit" id="btn-open-edit-box-7">Добавить страну</button>
+                                <div class="container hidden-adding-info-block-7">
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <input type="text" name="country">
+                                        <button type="submit" class="btn" name="added_country">Добавить</button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if not person.address %}
+                            <div class="container-sm adding-info">
+                                <button class="btn-dark btn-edit" id="btn-open-edit-box-8">Добавить адрес</button>
+                                <div class="container hidden-adding-info-block-8">
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <input type="text" name="address">
+                                        <button type="submit" class="btn" name="added_address">Добавить</button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if not person.sex %}
+                            <div class="container-sm adding-info">
+                                <button class="btn-dark btn-edit" id="btn-open-edit-box-9">Добавить пол</button>
+                                <div class="container hidden-adding-info-block-9">
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <select id="inputState" class="form-control" name="sex">
+                                            <option selected>Male</option>
+                                            <option>Female</option>
+                                        </select>
+                                        <button type="submit" class="btn" name="added_sex">Добавить</button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="container info-container">
+                        <h3 class="pninfo"> {{ person.name }} {{ person.surname }}</h3>
+                        <div class="panel">
+                            <div class="registration-info-user">
+                                <h4>Логин</h4><h6>{{ person.username }}</h6>
+                                <h4>Почта</h4><h6>{{ person.email }}</h6>
+                                <h4>Телефон</h4><h6>{{ person.phone }}</h6>
+                            </div>
+                            <button class="btn-dark btn-open-info" id="check-btn">Показать подробную информацию</button>
+                            <div class="container-lg secret-panel" id="hidden-panel">
+                                <h4>День рождения</h4><h6>{{ person.birthday }}</h6>
+                                <h4>Пол</h4><h6>{{ person.sex }}</h6>
+                                <h4>Страна</h4><h6>{{ person.country }}</h6>
+                                <h4>Адрес</h4><h6>{{ person.address }}</h6>
+                                <h4>Баланс</h4><h6>{{ person.balance }}</h6>
+                                <h4>Роль</h4><h6>{{ person.role.role }}</h6>
+                                <h4>Номер карты</h4><h6>{{ person.card.number }}</h6>
+                                <h4>Код</h4><h6>{{ person.card.secret_code }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container-md">
+                    {% if person.is_staff %}
+                        <div class="container success-block-req-org">
+                            <div class="list-request-box">
+                                <button class="btn-dark" id="show-req-org">История Заявок на рассмотрении</button>
+                                <div class="container table-org">
+                                    {% if form.count > 0 %}
+                                        {% if not form.is_pull %}
+                                            <table class="table_blur">
+                                                <thead>
+                                                <tr>
+                                                    <th>Logo</th>
+                                                    <th>Name</th>
+                                                    <th>Address</th>
+                                                    <th>description</th>
+                                                    <th>Date</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for person in form %}
+                                                    <tr>
+                                                        <td><img class="img-org" src="{{ person.logo_org.url }}"
+                                                                 alt="logo"></td>
+                                                        <td>{{ person.name_org }}</td>
+                                                        <td>{{ person.country }}</td>
+                                                        <td>{{ person.address }}</td>
+                                                        <td>{{ person.description }}</td>
+                                                        <td>{{ person.date_created_request }}</td>
+                                                        <td>
+                                                            <form method="POST">
+                                                                {% csrf_token %}
+                                                                <input style="visibility: hidden"
+                                                                       value="{{ person.id }}"
+                                                                       name="id_req">
+                                                                <input type="submit" name="succ_req" value="Принять">
+                                                            </form>
+                                                        </td>
+                                                        <td>
+                                                            <form method="POST">
+                                                                {% csrf_token %}
+                                                                <input style="visibility: hidden"
+                                                                       value="{{ person.id }}"
+                                                                       name="id_req">
+                                                                <input type="submit" name="not_succ_req"
+                                                                       value="Отклонить">
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% block extrahead %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/3.4.0/imask.min.js"></script>
+
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
+{% endblock extrahead %}
+<script src="{% static 'assets/js/index.js' %}?{% now "U" %}'"></script>
+<script src={% static 'assets/js/lk.js' %}?{% now "U" %}'"></script>
+</body>
+</html>
